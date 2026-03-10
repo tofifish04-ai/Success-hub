@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Success Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c28;--border:rgba(255,255,255,0.07);--accent:#c8f55a;--accent2:#5af5c8;--accent3:#f55a9b;--text:#f0f0f5;--muted:#7a7a99;--radius:16px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+.header{padding:20px 20px 0;display:flex;justify-content:space-between;align-items:center}
+.header-left h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.header-left h1 span{color:var(--accent)}
+.header-left p{font-size:12px;color:var(--muted);margin-top:2px}
+.streak-badge{background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:5px}
+.streak-badge span{color:var(--accent);font-family:'Syne',sans-serif;font-weight:700}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,20,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 20px;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.4;transition:all .2s;padding:4px 6px;border-radius:12px;border:none;background:none;color:var(--text)}
+.nav-item.active{opacity:1}
+.nav-item.active .nav-icon{background:var(--accent);color:#0a0a0f}
+.nav-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--surface2);transition:all .2s}
+.nav-label{font-size:9px;font-weight:500}
+.page{display:none;padding:16px 16px 100px;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.card-title .tag{background:var(--surface2);padding:3px 10px;border-radius:50px;font-size:10px;color:var(--accent);text-transform:none;letter-spacing:0}
+.progress-wrap{margin:8px 0}
+.progress-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.progress-label span:last-child{color:var(--muted);font-size:12px}
+.progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:var(--accent);transition:width .5s ease}
+.progress-fill.blue{background:var(--accent2)}
+.progress-fill.pink{background:var(--accent3)}
+.goal-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.goal-item:last-child{border-bottom:none;padding-bottom:0}
+.goal-check{width:24px;height:24px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0}
+.goal-check.done{background:var(--accent);border-color:var(--accent);color:#0a0a0f}
+.goal-text{flex:1;font-size:14px}
+.goal-text.done{text-decoration:line-through;color:var(--muted)}
+.goal-tag{font-size:10px;color:var(--muted);margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-val.green{color:var(--accent)}.stat-val.blue{color:var(--accent2)}.stat-val.pink{color:var(--accent3)}
+.stat-label{font-size:12px;color:var(--muted)}
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:10px 0}
+.day-dot{aspect-ratio:1;border-radius:8px;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;color:var(--muted);cursor:pointer;transition:all .2s;border:1px solid transparent;gap:2px}
+.day-dot.done{background:rgba(200,245,90,.15);border-color:var(--accent);color:var(--accent)}
+.day-dot.rest{background:rgba(90,245,200,.08);border-color:rgba(90,245,200,.3);color:var(--accent2)}
+.day-dot .day-num{font-size:11px;font-weight:600}
+.exercise-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px}
+.exercise-row:last-child{border-bottom:none}
+.ex-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:500}
+.ex-detail{font-size:11px;color:var(--muted);margin-top:2px}
+.ex-edit{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.ex-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.ex-btn:active{background:var(--accent);color:#0a0a0f;border-color:var(--accent)}
+.ex-del{width:26px;height:26px;border-radius:8px;border:1px solid rgba(245,90,155,.3);background:rgba(245,90,155,.08);color:var(--accent3);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sets-display{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;min-width:20px;text-align:center;color:var(--accent)}
+.step-list{list-style:none}
+.step-list li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5;align-items:flex-start}
+.step-list li:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.big-btn{width:100%;padding:16px;border-radius:var(--radius);border:none;background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.3px}
+.big-btn:active{transform:scale(.98);opacity:.9}
+.big-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.section-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:16px;margin-top:4px;letter-spacing:-.3px}
+.section-title span{color:var(--accent)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#0a0a0f;padding:10px 20px;border-radius:50px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;opacity:0;transition:all .3s;z-index:200;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.input-row{display:flex;gap:8px;margin-top:12px}
+.text-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.text-input:focus{border-color:var(--accent)}
+.add-btn{background:var(--accent);color:#0a0a0f;border:none;border-radius:10px;padding:10px 14px;font-size:20px;cursor:pointer;font-weight:700;flex-shrink:0}
+.quote-banner{background:linear-gradient(135deg,rgba(200,245,90,.1),rgba(90,245,200,.06));border:1px solid rgba(200,245,90,.2);border-radius:var(--radius);padding:16px;margin-bottom:14px;font-size:14px;line-height:1.6;font-style:italic}
+.quote-banner strong{display:block;font-size:11px;font-style:normal;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+/* budget */
+.cat-selector{display:flex;gap:8px;margin-bottom:14px}
+.cat-btn{flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+.cat-btn.active-needs{background:rgba(245,90,155,.15);border-color:var(--accent3);color:var(--accent3)}
+.cat-btn.active-wants{background:rgba(90,245,200,.12);border-color:var(--accent2);color:var(--accent2)}
+.cat-btn.active-savings{background:rgba(200,245,90,.12);border-color:var(--accent);color:var(--accent)}
+.gauge-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;flex-wrap:wrap;gap:4px}
+.gauge-over{color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700}
+.gauge-ok{color:var(--accent);font-family:'Syne',sans-serif;font-weight:700}
+.expense-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 9px;margin:3px;font-size:11px}
+.chip-cat{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+.chip-needs{background:rgba(245,90,155,.2);color:var(--accent3)}
+.chip-wants{background:rgba(90,245,200,.15);color:var(--accent2)}
+.chip-savings{background:rgba(200,245,90,.15);color:var(--accent)}
+.chip-del{cursor:pointer;color:var(--muted);margin-left:2px;font-size:13px}
+/* stocks */
+.stock-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:10px}
+.stock-row:last-child{border-bottom:none}
+.stock-ticker{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--accent);min-width:50px}
+.stock-info{flex:1;min-width:0}
+.stock-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.stock-aud{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;text-align:right}
+.stock-del{width:24px;height:24px;border-radius:8px;border:1px solid rgba(245,90,155,.3);background:rgba(245,90,155,.08);color:var(--accent3);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.search-dropdown{background:var(--surface2);border:1px solid var(--accent);border-radius:10px;margin-top:4px;overflow:hidden;display:none;position:absolute;width:100%;z-index:50;max-height:200px;overflow-y:auto}
+.search-opt{padding:10px 14px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+.search-opt:last-child{border-bottom:none}
+.search-opt:active{background:rgba(200,245,90,.1)}
+.search-opt strong{color:var(--accent);font-family:'Syne',sans-serif}
+/* content */
+.content-card{background:var(--surface2);border-radius:12px;padding:14px;border:1px solid var(--border);transition:all .2s;margin-bottom:10px}
+.content-card .platform{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.content-card .content-idea{font-size:13px;line-height:1.5;font-weight:500}
+.content-card .content-script{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:none}
+.content-card.expanded .content-script{display:block}
+.check-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.check-it{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;cursor:pointer;flex-shrink:0}
+.content-card.checked .check-it{background:var(--accent);border-color:var(--accent);color:#0a0a0f}
+.expand-btn{font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700}
+.ai-badge{background:linear-gradient(90deg,rgba(200,245,90,.2),rgba(90,245,200,.15));border:1px solid rgba(200,245,90,.3);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.5px;white-space:nowrap}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tool-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.tool-card .tool-icon{font-size:22px;margin-bottom:6px}
+.tool-card .tool-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:4px}
+.tool-card .tool-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.tool-card a{color:var(--accent);text-decoration:none}
+.budget-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* habits v2 */
+.ht-tab{padding:0 14px;height:52px;display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;letter-spacing:.3px}
+.ht-tab:hover{color:var(--text)}
+.ht-tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+.ht-month-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ht-month-btn:active{background:var(--accent2);border-color:var(--accent2)}
+.ht-section{display:none}
+.ht-section.active{display:block}
+/* tracker grid */
+.ht-grid-wrap{min-width:700px;}
+.ht-header-row{display:grid;gap:2px;margin-bottom:4px;align-items:center}
+.ht-th{background:var(--surface2);border-radius:4px;font-size:10px;font-weight:700;color:var(--muted);text-align:center;padding:6px 2px;text-transform:uppercase;letter-spacing:.5px}
+.ht-th.today-h{background:rgba(255,106,155,.2);color:var(--accent2)}
+.ht-habit-row{display:grid;gap:2px;margin-bottom:2px;align-items:center}
+.ht-name-cell{background:var(--surface2);border-radius:10px 4px 4px 10px;display:flex;align-items:center;gap:6px;padding:0 8px;height:38px;transition:background .15s;overflow:hidden}
+.ht-habit-row:hover .ht-name-cell{background:var(--surface)}
+.ht-icon{font-size:16px;flex-shrink:0;cursor:pointer}
+.ht-name-inp{background:transparent;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;width:100%;outline:none;cursor:text;min-width:0}
+.ht-name-inp::placeholder{color:var(--muted);font-style:italic}
+.ht-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 4px;border-radius:4px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.ht-habit-row:hover .ht-del-btn{opacity:1}
+.ht-del-btn:active{color:var(--accent3)}
+.ht-check{background:var(--surface2);height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .1s;border-radius:4px;position:relative;font-size:13px}
+.ht-check:hover{background:var(--surface)}
+.ht-check.ht-done{background:rgba(61,220,132,.15)}
+.ht-check.ht-done::after{content:'✓';color:#3ddc84;font-weight:800}
+.ht-check.ht-today{background:rgba(255,106,155,.08)}
+.ht-check.ht-today.ht-done{background:rgba(61,220,132,.2)}
+.ht-check.ht-future{cursor:default;opacity:.3;pointer-events:none}
+.ht-stat{background:var(--surface2);height:38px;border-radius:4px 10px 10px 4px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:700}
+.ht-stat.ht-pct{color:#3ddc84}
+.ht-stat.ht-stk{color:var(--amber,#ffb347);font-size:11px}
+/* goal cards */
+.ht-goal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;position:relative;transition:border-color .2s}
+.ht-goal-card:hover{border-color:var(--accent2)}
+.ht-goal-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;opacity:0;transition:opacity .15s}
+.ht-goal-card:hover .ht-goal-del{opacity:1}
+.ht-goal-del:active{color:var(--accent3)}
+.ht-cat-pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.ht-cat-health{background:rgba(61,220,132,.15);color:#3ddc84}
+.ht-cat-career{background:rgba(124,106,255,.15);color:#7c6aff}
+.ht-cat-finance{background:rgba(255,179,71,.15);color:#ffb347}
+.ht-cat-personal{background:rgba(255,106,155,.15);color:#ff6a9b}
+.ht-cat-education{background:rgba(96,201,255,.15);color:#60c9ff}
+.ht-cat-other{background:rgba(180,180,180,.1);color:#aaa}
+.ht-prog-track{background:var(--surface2);border-radius:8px;height:7px;margin-bottom:5px;overflow:hidden}
+.ht-prog-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#7c6aff,#3ddc84);transition:width .4s}
+/* heatmap */
+.ht-hm-cell{width:20px;height:20px;border-radius:4px;background:var(--surface2);transition:transform .1s;cursor:default;flex-shrink:0}
+.ht-hm-cell:hover{transform:scale(1.3);z-index:10;position:relative}
+.ht-hm-done{background:#3ddc84}
+.ht-hm-today{outline:2px solid var(--accent2)}
+.ht-hm-future{opacity:.25}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>My <span>Success</span> Hub</h1>
+    <p id="date-display"></p>
+  </div>
+  <div class="streak-badge">🔥 <span id="streak-count">0</span> day streak</div>
+</div>
+
+<!-- HOME -->
+
+<div class="page active" id="page-home">
+  <div style="height:16px"></div>
+  <div class="quote-banner"><strong>Today's Mindset</strong><span id="quote-text"></span></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val green" id="home-gym-count">0</div><div class="stat-label">Gym sessions this week</div></div>
+    <div class="stat-card"><div class="stat-val blue" id="home-goals-done">0/5</div><div class="stat-label">Weekly goals done</div></div>
+    <div class="stat-card"><div class="stat-val pink" id="home-content-count">0</div><div class="stat-label">Content pieces posted</div></div>
+    <div class="stat-card"><div class="stat-val green" id="home-invested">$0</div><div class="stat-label">Portfolio value (AUD)</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Weekly Focus Goals <span class="tag">Tap to complete</span></div>
+    <div id="home-goals-list">
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Hit the gym 3x this week</div><div class="goal-tag">💪 Fitness</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Post 2 Reels or TikToks</div><div class="goal-tag">📲 Content</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Buy or top up ETF investment</div><div class="goal-tag">💰 Investing</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Document a work achievement at BSL</div><div class="goal-tag">🚀 Career</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Track all spending this week</div><div class="goal-tag">📊 Money</div></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">2026 Year Progress</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Jan → Dec</span><span id="year-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="year-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GYM -->
+
+<div class="page" id="page-gym">
+  <div style="height:16px"></div>
+  <div class="section-title">Gym <span>Tracker</span></div>
+  <div class="card">
+    <div class="card-title">This Month — Tap a day to log</div>
+    <div class="day-grid" id="month-grid"></div>
+    <div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--muted)"><span>🟢 Workout</span><span>🔵 Rest day</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Today's Workout Log <span class="tag">Build your session</span></div>
+    <div id="exercise-list"></div>
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">ADD EXERCISE</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" class="text-input" id="gym-ex-name" placeholder="Exercise name (e.g. Deadlift)" style="flex:2;min-width:130px">
+        <input type="number" class="text-input" id="gym-ex-sets" placeholder="Sets" style="width:65px;flex:none" min="1" value="3">
+        <input type="text" class="text-input" id="gym-ex-reps" placeholder="Reps / Notes" style="flex:1;min-width:100px">
+        <button class="add-btn" onclick="addExercise()" style="margin-top:0">+</button>
+      </div>
+    </div>
+    <button class="big-btn" onclick="logWorkout()" style="margin-top:14px">✅ Log Today's Workout</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Weekly Targets</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Sessions this week</span><span id="gym-weekly-label">0 / 3</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="gym-weekly-bar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-wrap" style="margin-top:10px">
+      <div class="progress-label"><span>Monthly consistency</span><span id="gym-monthly-label">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill blue" id="gym-monthly-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MONEY -->
+
+<div class="page" id="page-money">
+  <div style="height:16px"></div>
+  <div class="section-title">Money <span>Dashboard</span> <span style="font-size:13px;color:var(--muted)">🇦🇺 AUD</span></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val green">$5,472</div><div class="stat-label">Est. take-home / month</div></div>
+    <div class="stat-card"><div class="stat-val pink" id="money-total-display">$0</div><div class="stat-label">Total tracked expenses</div></div>
+  </div>
+  <!-- Pay breakdown -->
+  <div class="card">
+    <div class="card-title">Your Pay Breakdown <span class="tag">Monthly</span></div>
+    <div style="font-size:13px">
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Gross salary</span><span style="font-family:'Syne',sans-serif;font-weight:700">$8,205</span></div>
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Income tax (est.)</span><span style="color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700">− $2,079</span></div>
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Medicare levy (2%)</span><span style="color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700">− $164</span></div>
+      <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Rio Tinto share plan</span><span style="color:var(--accent2);font-family:'Syne',sans-serif;font-weight:700">− $490 📈</span></div>
+      <div style="display:flex;justify-content:space-between;padding:11px 0 0"><span style="font-weight:600">Take-home to bank</span><span style="color:var(--accent);font-family:'Syne',sans-serif;font-weight:800;font-size:16px">≈ $5,472</span></div>
+    </div>
+    <div style="background:rgba(90,245,200,.07);border:1px solid rgba(90,245,200,.2);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6">
+      💡 The $490 Rio Tinto share plan deduction is <strong style="color:var(--accent2)">building wealth automatically</strong> — that's on top of your budget. Don't count it as spending; it's an investment.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">50/30/20 Budget Tracker <span class="tag">Based on $5,472 take-home</span></div>
+    <div style="margin-bottom:14px">
+      <div class="gauge-row">
+        <span style="display:flex;align-items:center;gap:6px"><span class="budget-dot" style="background:var(--accent3)"></span>🏠 Needs (50%)</span>
+        <span><span id="needs-spent" class="gauge-ok">$0</span> <span style="color:var(--muted)">/ $2,736</span> <span id="needs-over" style="display:none;color:var(--accent3);font-size:11px;font-weight:700">OVER BUDGET!</span></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill pink" id="needs-bar" style="width:0%"></div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="gauge-row">
+        <span style="display:flex;align-items:center;gap:6px"><span class="budget-dot" style="background:var(--accent2)"></span>🎉 Wants (30%)</span>
+        <span><span id="wants-spent" class="gauge-ok">$0</span> <span style="color:var(--muted)">/ $1,642</span> <span id="wants-over" style="display:none;color:var(--accent3);font-size:11px;font-weight:700">OVER BUDGET!</span></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill blue" id="wants-bar" style="width:0%"></div></div>
+    </div>
+    <div>
+      <div class="gauge-row">
+        <span style="display:flex;align-items:center;gap:6px"><span class="budget-dot" style="background:var(--accent)"></span>💰 Save/Invest (20%)</span>
+        <span><span id="savings-spent" class="gauge-ok">$0</span> <span style="color:var(--muted)">/ $1,094</span></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="savings-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Quick Expense Log</div>
+    <div class="cat-selector">
+      <button class="cat-btn" id="cat-needs" onclick="selectCat('needs')">🏠 Needs</button>
+      <button class="cat-btn" id="cat-wants" onclick="selectCat('wants')">🎉 Wants</button>
+      <button class="cat-btn" id="cat-savings" onclick="selectCat('savings')">💰 Savings</button>
+    </div>
+    <div id="expense-chips" style="display:flex;flex-wrap:wrap;min-height:10px;margin-bottom:6px"></div>
+    <div class="input-row">
+      <input type="text" class="text-input" id="expense-name" placeholder="What did you spend on?">
+      <input type="number" class="text-input" id="expense-amt" placeholder="$AUD" style="width:90px;flex:none">
+      <button class="add-btn" onclick="addExpense()">+</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px" id="cat-hint">Select a category above first</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 Investment Portfolio <span class="tag">ASX + Global</span></div>
+    <div id="stock-list"></div>
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">ADD HOLDING</div>
+      <div style="position:relative;margin-bottom:8px">
+        <input type="text" class="text-input" id="stock-search" placeholder="Search ticker or name (e.g. VAS, CBA, NVDA)" oninput="searchStocks()" style="width:100%">
+        <div class="search-dropdown" id="stock-dropdown"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="number" class="text-input" id="stock-qty" placeholder="Shares" style="flex:1" min="0.001" step="0.001">
+        <input type="number" class="text-input" id="stock-price" placeholder="Buy price $" style="flex:1">
+        <button class="add-btn" onclick="addStock()" style="margin-top:0">+</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--muted)">Total portfolio value</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent)" id="total-invested">$0.00 AUD</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🇦🇺 Beginner Investing Roadmap</div>
+    <ol class="step-list">
+      <li><div class="step-num">1</div><div><strong>Emergency fund first.</strong> Save 3 months expenses (~$16K) in an ING or UBank high-interest savings account (HISA) — 5%+ p.a.</div></li>
+      <li><div class="step-num">2</div><div><strong>You already invest via Rio Tinto share plan ($490/mo).</strong> That's $5,880/yr building automatically. Check if you can increase contributions or if the plan offers a matching or discount component.</div></li>
+      <li><div class="step-num">3</div><div><strong>Maximise your super.</strong> Check QSuper or Hostplus. Salary sacrifice extra on top of your 11.5% SGC — contributions taxed at 15% vs your ~32.5% marginal rate.</div></li>
+      <li><div class="step-num">4</div><div><strong>Open a brokerage for ETFs.</strong> Pearler or SelfWealth. Add VAS (ASX 300) + VGS (global stocks) alongside your Rio Tinto shares for diversification.</div></li>
+      <li><div class="step-num">5</div><div><strong>Automate $300–$500/month.</strong> Set a recurring ETF buy on Pearler. Combined with your $490 share plan you'd be investing ~$1,000/mo — powerful over 10–20 years.</div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- CONTENT -->
+
+<div class="page" id="page-content">
+  <div style="height:16px"></div>
+  <div class="section-title">Content <span>Hustle</span></div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(200,245,90,.08),rgba(90,245,200,.05));border-color:rgba(200,245,90,.2)">
+    <div class="card-title">Your Strategy <span class="ai-badge">NO FACE NEEDED</span></div>
+    <div style="font-size:13px;line-height:1.7">Faceless content is one of the fastest-growing formats. Use AI voiceovers, text animations, screen recordings and B-roll. Your niche: <strong style="color:var(--accent)">Aussie money, investing & career growth</strong>. People love real stories — you have a great one.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🤖 AI Toolkit — No Face, No Voice</div>
+    <div class="tool-grid">
+      <div class="tool-card"><div class="tool-icon">🎙️</div><div class="tool-name">ElevenLabs</div><div class="tool-desc">Type script → AI voice reads it. Free tier available.<br><a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a></div></div>
+      <div class="tool-card"><div class="tool-icon">🎬</div><div class="tool-name">CapCut</div><div class="tool-desc">Free editor. Auto-captions, templates, trending transitions.<br><a href="https://capcut.com" target="_blank">capcut.com</a></div></div>
+      <div class="tool-card"><div class="tool-icon">🖼️</div><div class="tool-name">Canva</div><div class="tool-desc">Animated text slides & finance graphics. No design skill needed.<br><a href="https://canva.com" target="_blank">canva.com</a></div></div>
+      <div class="tool-card"><div class="tool-icon">✍️</div><div class="tool-name">Claude (me!)</div><div class="tool-desc">Ask me to write your full scripts. Just give me a topic + angle.</div></div>
+      <div class="tool-card"><div class="tool-icon">📊</div><div class="tool-name">Pika / Runway</div><div class="tool-desc">AI video from text or images — great for B-roll clips.<br><a href="https://pika.art" target="_blank">pika.art</a></div></div>
+      <div class="tool-card"><div class="tool-icon">🎵</div><div class="tool-name">Suno</div><div class="tool-desc">Generate royalty-free background music in seconds.<br><a href="https://suno.com" target="_blank">suno.com</a></div></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:12px;font-size:12px;line-height:1.6;color:var(--muted)">
+      💡 <strong style="color:var(--text)">Simple workflow:</strong> Write script with Claude → paste into ElevenLabs → edit in CapCut with auto-captions → post. ~30–45 mins per video.
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">This Week's Content <span class="tag">Tap ▼ for script tips</span></div>
+    <div id="content-ideas-list">
+      <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div><div class="platform">📱 Reel / TikTok · AI Voiceover</div><div class="content-idea">How I invest on an Aussie salary — beginner's guide to ETFs (VAS, VGS, DHHF)</div></div>
+          <span class="ai-badge">AI Voice</span>
+        </div>
+        <div class="content-script"><strong style="color:var(--accent);font-size:11px">SCRIPT HOOK:</strong><br>"Most Australians don't start investing until their 30s. I started this year — here's exactly what I do with $500 a month..." Screen record your Pearler app → explain VAS + VGS → end with "follow for weekly Aussie money tips"</div>
+        <div class="check-row"><button class="expand-btn" onclick="toggleExpand(this)">▼ Script idea</button><div class="check-it" onclick="toggleContentCheck(this)">✓</div></div>
+      </div>
+      <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div><div class="platform">📱 Reel / TikTok · Text Slides</div><div class="content-idea">My 50/30/20 budget — living in Queensland on a full-time salary</div></div>
+          <span class="ai-badge">Text Only</span>
+        </div>
+        <div class="content-script"><strong style="color:var(--accent);font-size:11px">SCRIPT HOOK:</strong><br>Pure text slides in CapCut with trending audio — no voice needed. "Here's where every dollar of my QLD salary goes 👇" → animated pie chart in Canva → show real numbers. Finance content with real Aussie figures gets massive reach.</div>
+        <div class="check-row"><button class="expand-btn" onclick="toggleExpand(this)">▼ Script idea</button><div class="check-it" onclick="toggleContentCheck(this)">✓</div></div>
+      </div>
+      <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div><div class="platform">📱 Reel / TikTok · AI Voiceover</div><div class="content-idea">What it's actually like working in an aluminium smelter in Australia</div></div>
+          <span class="ai-badge">AI Voice</span>
+        </div>
+        <div class="content-script"><strong style="color:var(--accent);font-size:11px">SCRIPT HOOK:</strong><br>"I'm a process engineer at one of Australia's biggest aluminium smelters. Here's what the job actually looks like..." Use stock footage of industrial/mining sites + AI voiceover. Talk about pay, career path, what the work involves. Huge Aussie trades & STEM career audience — barely anyone covers this niche.</div>
+        <div class="check-row"><button class="expand-btn" onclick="toggleExpand(this)">▼ Script idea</button><div class="check-it" onclick="toggleContentCheck(this)">✓</div></div>
+      </div>
+      <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div><div class="platform">📱 Reel / TikTok · Text Slides</div><div class="content-idea">5 things I wish I knew about money at 22 (Australian edition)</div></div>
+          <span class="ai-badge">Text Only</span>
+        </div>
+        <div class="content-script"><strong style="color:var(--accent);font-size:11px">SCRIPT HOOK:</strong><br>Bold text slides, fast cuts, 30 seconds max. "1. Super matters more than you think 2. ETFs beat stock picking 3. A HISA is not investing 4. Salary sacrifice is free money 5. Start now, not when you're 'ready'." These list-style videos are the easiest to make and often go viral.</div>
+        <div class="check-row"><button class="expand-btn" onclick="toggleExpand(this)">▼ Script idea</button><div class="check-it" onclick="toggleContentCheck(this)">✓</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 Growth Roadmap 2026</div>
+    <div class="progress-wrap"><div class="progress-label"><span>Phase 1: Foundation (Jan–Mar) — post consistently, test formats</span><span>Now</span></div><div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div></div>
+    <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>Phase 2: Growth (Apr–Jun) — 1K followers, trending audio, collab</span><span>Next</span></div><div class="progress-bar"><div class="progress-fill blue" style="width:0%"></div></div></div>
+    <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>Phase 3: Monetise (Jul+) — brand deals, affiliate, digital products</span><span>Goal</span></div><div class="progress-bar"><div class="progress-fill pink" style="width:0%"></div></div></div>
+  </div>
+</div>
+
+<!-- CAREER -->
+
+<div class="page" id="page-career">
+  <div style="height:16px"></div>
+  <div class="section-title">Career <span>Growth</span></div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(200,245,90,.07),rgba(90,245,200,.04));border-color:rgba(200,245,90,.15)">
+    <div class="card-title">Your Role</div>
+    <div style="font-size:14px;line-height:1.8">
+      <strong style="color:var(--accent)">Process Engineer — Carbon Baking Furnace</strong><br>
+      <span style="color:var(--muted);font-size:13px">Boyne Smelters Ltd · Gladstone, QLD 🇦🇺</span><br>
+      <span style="font-size:13px;color:var(--text)">Great trajectory from graduate chemist → process engineer. Path ahead: <strong>Senior Process Engineer → Principal/Lead → Superintendent → Engineering Manager.</strong> BSL is one of Australia's largest aluminium smelters — that brand carries serious weight on a resume.</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Skill Building Tracker</div>
+    <div class="progress-wrap"><div class="progress-label"><span>LinkedIn profile optimisation</span><span id="skill1-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="skill1-bar" style="width:0%"></div></div></div>
+    <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>Technical upskilling (Six Sigma / SAP / HSC Chemistry)</span><span id="skill2-pct">0%</span></div><div class="progress-bar"><div class="progress-fill blue" id="skill2-bar" style="width:0%"></div></div></div>
+    <div class="progress-wrap" style="margin-top:10px"><div class="progress-label"><span>Industry networking (AusIMM / Engineers Australia)</span><span id="skill3-pct">0%</span></div><div class="progress-bar"><div class="progress-fill pink" id="skill3-bar" style="width:0%"></div></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
+      <button class="big-btn secondary" style="margin:0;font-size:11px;padding:10px 4px" onclick="updateSkill('skill1')">LinkedIn +10%</button>
+      <button class="big-btn secondary" style="margin:0;font-size:11px;padding:10px 4px" onclick="updateSkill('skill2')">Tech +10%</button>
+      <button class="big-btn secondary" style="margin:0;font-size:11px;padding:10px 4px" onclick="updateSkill('skill3')">Network +10%</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Career Action Plan — BSL Context</div>
+    <ol class="step-list">
+      <li><div class="step-num">Q1</div><div><strong>Document your wins.</strong> Keep a running log of every furnace optimisation, yield improvement, or process fix you lead. These are future promotion and pay review evidence.</div></li>
+      <li><div class="step-num">Q2</div><div><strong>Get visible internally.</strong> Present at a technical meeting or write a short internal report on a process improvement. Visibility = advancement at BSL.</div></li>
+      <li><div class="step-num">Q3</div><div><strong>Upskill strategically.</strong> Six Sigma Green Belt, SAP PM module, or process simulation (HSC Chemistry / Aspen) separates you from peers and justifies a pay review.</div></li>
+      <li><div class="step-num">Q4</div><div><strong>Negotiate or explore.</strong> Rio Tinto, Alcoa, South32 all operate AU smelters. BSL experience is highly valued. Target Senior Eng. at $130K–$160K+ or push for internal promotion.</div></li>
+    </ol>
+  </div>
+  <div class="card">
+    <div class="card-title">My Career Goals</div>
+    <div id="career-goals-list">
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Update LinkedIn with current BSL process engineer role</div><div class="goal-tag">🔗 LinkedIn</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Complete one technical upskilling course</div><div class="goal-tag">📚 Learning</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Request a formal salary review</div><div class="goal-tag">💼 Pay</div></div></div>
+      <div class="goal-item" onclick="toggleGoal(this)"><div class="goal-check">✓</div><div><div class="goal-text">Join Engineers Australia or AusIMM</div><div class="goal-tag">🤝 Network</div></div></div>
+    </div>
+    <div class="input-row">
+      <input type="text" class="text-input" id="career-goal-input" placeholder="Add a career goal...">
+      <button class="add-btn" onclick="addCareerGoal()">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- HABITS -->
+
+<div class="page" id="page-habits" style="padding:0 0 100px;">
+
+  <!-- Habit sub-nav -->
+
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;position:sticky;top:0;z-index:10;">
+    <div style="display:flex;gap:0;">
+      <div class="ht-tab active" id="htab-tracker" onclick="showHTab('tracker')">📅 Daily</div>
+      <div class="ht-tab" id="htab-goals" onclick="showHTab('goals')">🎯 Goals</div>
+      <div class="ht-tab" id="htab-graphs" onclick="showHTab('graphs')">📊 Graphs</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="ht-month-btn" onclick="hPrevMonth()">‹</button>
+      <span style="font-size:13px;font-weight:600;min-width:120px;text-align:center" id="ht-month-label"></span>
+      <button class="ht-month-btn" onclick="hNextMonth()">›</button>
+    </div>
+  </div>
+
+  <!-- TRACKER -->
+
+  <div class="ht-section active" id="htsec-tracker" style="padding:16px;">
+    <div id="ht-tracker-wrap" style="overflow-x:auto;"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;">
+      <input type="text" class="text-input" id="ht-new-name" placeholder="New habit name..." maxlength="30" style="width:200px;flex:none;" onkeydown="if(event.key==='Enter')htAddHabit()">
+      <input type="text" class="text-input" id="ht-new-icon" placeholder="🔥" maxlength="2" style="width:54px;flex:none;text-align:center;">
+      <button class="big-btn" style="margin:0;width:auto;padding:10px 18px;" onclick="htAddHabit()">+ Add Habit</button>
+      <span style="font-size:11px;color:var(--muted);" id="ht-habit-count"></span>
+    </div>
+  </div>
+
+  <!-- GOALS -->
+
+  <div class="ht-section" id="htsec-goals" style="padding:16px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin-bottom:12px;">+ Create New Goal</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input type="text" class="text-input" id="ht-g-desc" placeholder="e.g. Run a 5K by June">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select class="text-input" id="ht-g-cat" style="flex:1;min-width:130px;">
+            <option value="health">💚 Health</option>
+            <option value="career">💜 Career</option>
+            <option value="finance">🧡 Finance</option>
+            <option value="personal">🩷 Personal</option>
+            <option value="education">💙 Education</option>
+            <option value="other">🩶 Other</option>
+          </select>
+          <input type="date" class="text-input" id="ht-g-date" style="flex:1;min-width:130px;">
+          <select class="text-input" id="ht-g-priority" style="flex:1;min-width:100px;">
+            <option>🔴 High</option><option selected>🟡 Medium</option><option>🟢 Low</option>
+          </select>
+        </div>
+        <button class="big-btn" style="margin:0;" onclick="htAddGoal()">Add Goal</button>
+      </div>
+    </div>
+    <div id="ht-goals-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+  </div>
+
+  <!-- GRAPHS -->
+
+  <div class="ht-section" id="htsec-graphs" style="padding:16px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;">📈 Weekly Completion %</div>
+      <canvas id="ht-weekly-chart" height="200"></canvas>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;">🔥 Current Streaks</div>
+      <canvas id="ht-streak-chart" height="200"></canvas>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;">📅 Monthly Heatmap</div>
+      <div id="ht-heatmap-wrap" style="overflow-x:auto;"></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;">📊 Overall Monthly Completion</div>
+      <canvas id="ht-overall-chart" height="160"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('home',this)"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></button>
+  <button class="nav-item" onclick="showPage('gym',this)"><div class="nav-icon">💪</div><div class="nav-label">Gym</div></button>
+  <button class="nav-item" onclick="showPage('money',this)"><div class="nav-icon">💰</div><div class="nav-label">Money</div></button>
+  <button class="nav-item" onclick="showPage('habits',this)"><div class="nav-icon">✅</div><div class="nav-label">Habits</div></button>
+  <button class="nav-item" onclick="showPage('content',this)"><div class="nav-icon">📲</div><div class="nav-label">Content</div></button>
+  <button class="nav-item" onclick="showPage('career',this)"><div class="nav-icon">🚀</div><div class="nav-label">Career</div></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const LS_KEY='successHub3';
+let S=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+if(!S.gymDays)S.gymDays={};
+if(!S.exercises)S.exercises=[];
+if(!S.streak)S.streak=0;
+if(!S.expenses)S.expenses=[];
+if(!S.stocks)S.stocks=[];
+if(!S.skills)S.skills={skill1:0,skill2:0,skill3:0};
+let selectedCat=null,selectedStock=null;
+const save=()=>localStorage.setItem(LS_KEY,JSON.stringify(S));
+
+// date
+const now=new Date();
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('date-display').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONS[now.getMonth()]} ${now.getFullYear()}`;
+document.getElementById('streak-count').textContent=S.streak;
+const yS=new Date('2026-01-01'),yE=new Date('2027-01-01');
+const yP=Math.max(0,Math.min(100,Math.round(((now-yS)/(yE-yS))*100)));
+document.getElementById('year-pct').textContent=yP+'%';
+document.getElementById('year-bar').style.width=yP+'%';
+const QS=['"Small consistent actions beat perfect occasional ones."','"Every rep, post, and dollar saved compounds."','"Your future self is watching — make them proud."','"The best time to start was yesterday. Second best: now."','"You don\'t rise to your goals, you fall to your systems."'];
+document.getElementById('quote-text').textContent=QS[now.getDay()%QS.length];
+
+// nav
+function showPage(n,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  btn.classList.add('active');
+}
+
+// goals
+function toggleGoal(item){
+  const c=item.querySelector('.goal-check'),t=item.querySelector('.goal-text');
+  c.classList.toggle('done');t.classList.toggle('done');
+  const done=document.querySelectorAll('#home-goals-list .goal-check.done').length;
+  const tot=document.querySelectorAll('#home-goals-list .goal-item').length;
+  document.getElementById('home-goals-done').textContent=done+'/'+tot;
+  showToast(c.classList.contains('done')?'✅ Done!':'↩️ Unchecked');
+}
+
+// gym calendar
+function buildGrid(){
+  const g=document.getElementById('month-grid');g.innerHTML='';
+  const dIM=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  ['S','M','T','W','T','F','S'].forEach(d=>{const h=document.createElement('div');h.style.cssText='font-size:9px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600;';h.textContent=d;g.appendChild(h);});
+  const first=new Date(now.getFullYear(),now.getMonth(),1).getDay();
+  for(let i=0;i<first;i++)g.appendChild(document.createElement('div'));
+  for(let d=1;d<=dIM;d++){
+    const k=`${now.getFullYear()}-${now.getMonth()}-${d}`;
+    const dot=document.createElement('div');
+    dot.className='day-dot'+(S.gymDays[k]==='done'?' done':S.gymDays[k]==='rest'?' rest':'');
+    dot.innerHTML=`<div class="day-num">${d}</div><div style="font-size:10px">${S.gymDays[k]==='done'?'💪':S.gymDays[k]==='rest'?'😴':''}</div>`;
+    dot.onclick=()=>cycleDay(k,dot,d);
+    g.appendChild(dot);
+  }
+  updateGymStats();
+}
+function cycleDay(k,dot,d){
+  const c=S.gymDays[k];
+  if(!c){S.gymDays[k]='done';showToast('💪 Workout logged!');}
+  else if(c==='done'){S.gymDays[k]='rest';showToast('😴 Rest day');}
+  else{delete S.gymDays[k];showToast('🔄 Cleared');}
+  dot.className='day-dot'+(S.gymDays[k]==='done'?' done':S.gymDays[k]==='rest'?' rest':'');
+  dot.innerHTML=`<div class="day-num">${d}</div><div style="font-size:10px">${S.gymDays[k]==='done'?'💪':S.gymDays[k]==='rest'?'😴':''}</div>`;
+  save();updateGymStats();
+}
+function renderExercises(){
+  const el=document.getElementById('exercise-list');
+  if(!S.exercises.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No exercises yet — add them below.</div>';return;}
+  el.innerHTML=S.exercises.map((ex,i)=>`<div class="exercise-row"><div class="ex-icon">🏋️</div><div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-detail">${ex.sets} sets · ${ex.reps}</div></div><div class="ex-edit"><button class="ex-btn" onclick="chgSets(${i},-1)">−</button><div class="sets-display">${ex.sets}</div><button class="ex-btn" onclick="chgSets(${i},1)">+</button><div class="ex-del" onclick="rmEx(${i})">✕</div></div></div>`).join('');
+}
+function addExercise(){
+  const name=document.getElementById('gym-ex-name').value.trim();
+  const sets=parseInt(document.getElementById('gym-ex-sets').value)||3;
+  const reps=document.getElementById('gym-ex-reps').value.trim()||'8–12 reps';
+  if(!name){showToast('⚠️ Enter an exercise name');return;}
+  S.exercises.push({name,sets,reps});
+  document.getElementById('gym-ex-name').value='';
+  document.getElementById('gym-ex-reps').value='';
+  save();renderExercises();showToast('✅ Exercise added!');
+}
+function chgSets(i,d){S.exercises[i].sets=Math.max(0,S.exercises[i].sets+d);save();renderExercises();}
+function rmEx(i){S.exercises.splice(i,1);save();renderExercises();showToast('🗑️ Removed');}
+function logWorkout(){
+  const k=`${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  S.gymDays[k]='done';S.streak++;
+  document.getElementById('streak-count').textContent=S.streak;
+  S.exercises=[];save();buildGrid();renderExercises();
+  showToast('🔥 Workout logged! Streak: '+S.streak);
+}
+function updateGymStats(){
+  const wS=new Date(now);wS.setDate(now.getDate()-now.getDay());
+  let wC=0;
+  for(let i=0;i<7;i++){const d=new Date(wS);d.setDate(wS.getDate()+i);if(S.gymDays[`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`]==='done')wC++;}
+  document.getElementById('gym-weekly-label').textContent=wC+' / 3';
+  document.getElementById('gym-weekly-bar').style.width=Math.min(100,(wC/3)*100)+'%';
+  document.getElementById('home-gym-count').textContent=wC;
+  let mC=0;
+  for(let d=1;d<=now.getDate();d++)if(S.gymDays[`${now.getFullYear()}-${now.getMonth()}-${d}`]==='done')mC++;
+  const tgt=Math.max(1,Math.round(now.getDate()*3/7));
+  const mp=Math.min(100,Math.round((mC/tgt)*100));
+  document.getElementById('gym-monthly-label').textContent=mp+'%';
+  document.getElementById('gym-monthly-bar').style.width=mp+'%';
+}
+buildGrid();renderExercises();
+
+// budget
+const BUDGET={needs:2736,wants:1642,savings:1094};
+function selectCat(cat){
+  selectedCat=cat;
+  ['needs','wants','savings'].forEach(c=>document.getElementById('cat-'+c).className='cat-btn');
+  document.getElementById('cat-'+cat).className='cat-btn active-'+cat;
+  document.getElementById('cat-hint').textContent='Category selected: '+cat.charAt(0).toUpperCase()+cat.slice(1);
+}
+function addExpense(){
+  const name=document.getElementById('expense-name').value.trim();
+  const amt=parseFloat(document.getElementById('expense-amt').value);
+  if(!selectedCat){showToast('⚠️ Select a category first');return;}
+  if(!name||isNaN(amt)||amt<=0){showToast('⚠️ Enter name and amount');return;}
+  S.expenses.push({name,amt,cat:selectedCat});
+  document.getElementById('expense-name').value='';
+  document.getElementById('expense-amt').value='';
+  save();renderExpenses();showToast('💸 Expense logged!');
+}
+function rmExpense(i){S.expenses.splice(i,1);save();renderExpenses();}
+function renderExpenses(){
+  const totals={needs:0,wants:0,savings:0};
+  S.expenses.forEach(e=>totals[e.cat]=(totals[e.cat]||0)+e.amt);
+  const total=totals.needs+totals.wants+totals.savings;
+  document.getElementById('money-total-display').textContent='$'+total.toFixed(0);
+  ['needs','wants','savings'].forEach(cat=>{
+    const spent=totals[cat]||0,budget=BUDGET[cat],over=spent>budget;
+    const pct=Math.min(100,(spent/budget)*100);
+    document.getElementById(cat+'-spent').textContent='$'+spent.toFixed(0);
+    document.getElementById(cat+'-spent').className=over?'gauge-over':'gauge-ok';
+    document.getElementById(cat+'-bar').style.width=pct+'%';
+    document.getElementById(cat+'-bar').style.background=over?'var(--accent3)':(cat==='needs'?'var(--accent3)':cat==='wants'?'var(--accent2)':'var(--accent)');
+    const overEl=document.getElementById(cat+'-over');
+    if(overEl)overEl.style.display=over?'inline':'none';
+  });
+  const chips=document.getElementById('expense-chips');
+  chips.innerHTML=S.expenses.slice().reverse().slice(0,14).map((e,ri)=>{
+    const i=S.expenses.length-1-ri;
+    return `<div class="expense-chip"><span class="chip-cat chip-${e.cat}">${e.cat}</span>${e.name} <strong>$${e.amt}</strong><span class="chip-del" onclick="rmExpense(${i})">✕</span></div>`;
+  }).join('');
+}
+renderExpenses();
+
+// stocks — ASX / CommSec only
+const STOCKS_DB=[
+  // BetaShares thematic ETFs (ones you hold + similar)
+  {t:'OOO',n:'BetaShares Crude Oil Index ETF — Currency Hedged',x:'ASX'},
+  {t:'DTEC',n:'BetaShares S&P/ASX Australian Technology ETF',x:'ASX'},
+  {t:'SEMI',n:'BetaShares Global Semiconductor ETF',x:'ASX'},
+  {t:'WIRE',n:'BetaShares Global Cybersecurity ETF',x:'ASX'},
+  {t:'HACK',n:'BetaShares Global Cybersecurity ETF (alt)',x:'ASX'},
+  {t:'CLNE',n:'BetaShares Climate Change Innovation ETF',x:'ASX'},
+  {t:'ERTH',n:'BetaShares Climate Change Innovation ETF',x:'ASX'},
+  {t:'FUEL',n:'BetaShares Global Energy Companies ETF',x:'ASX'},
+  {t:'RBTZ',n:'BetaShares Global Robotics & AI ETF',x:'ASX'},
+  {t:'DRIV',n:'BetaShares Electric Vehicles & Future Mobility ETF',x:'ASX'},
+  {t:'FOOD',n:'BetaShares Global Agriculture ETF',x:'ASX'},
+  {t:'MNRS',n:'BetaShares Global Gold Miners ETF',x:'ASX'},
+  {t:'QRE',n:'BetaShares Australian Resources Sector ETF',x:'ASX'},
+  {t:'QFN',n:'BetaShares Australian Financials Sector ETF',x:'ASX'},
+  {t:'GGUS',n:'BetaShares Geared US Equity (Hedged) Complex ETF',x:'ASX'},
+  {t:'NDQ',n:'BetaShares Nasdaq 100 ETF',x:'ASX'},
+  {t:'A200',n:'BetaShares Australia 200 ETF',x:'ASX'},
+  {t:'DHHF',n:'BetaShares Diversified All Growth ETF',x:'ASX'},
+  {t:'HNDQ',n:'BetaShares Nasdaq 100 ETF (Currency Hedged)',x:'ASX'},
+  // Vanguard ETFs
+  {t:'VAS',n:'Vanguard Australian Shares Index ETF',x:'ASX'},
+  {t:'VGS',n:'Vanguard MSCI Index International Shares ETF',x:'ASX'},
+  {t:'VDHG',n:'Vanguard Diversified High Growth Index ETF',x:'ASX'},
+  {t:'VHY',n:'Vanguard Australian Shares High Yield ETF',x:'ASX'},
+  {t:'VAP',n:'Vanguard Australian Property Securities Index ETF',x:'ASX'},
+  {t:'VGE',n:'Vanguard FTSE Emerging Markets Shares ETF',x:'ASX'},
+  {t:'VEQ',n:'Vanguard FTSE Europe Shares ETF',x:'ASX'},
+  // iShares ETFs
+  {t:'IVV',n:'iShares S&P 500 ETF',x:'ASX'},
+  {t:'IOZ',n:'iShares Core S&P/ASX 200 ETF',x:'ASX'},
+  {t:'IJR',n:'iShares Core S&P Small-Cap ETF',x:'ASX'},
+  {t:'IEM',n:'iShares MSCI Emerging Markets ETF',x:'ASX'},
+  // SPDR ETFs
+  {t:'STW',n:'SPDR S&P/ASX 200 Fund',x:'ASX'},
+  {t:'SFY',n:'SPDR S&P/ASX 50 Fund',x:'ASX'},
+  {t:'SPY',n:'SPDR S&P 500 ETF Trust (ASX-listed)',x:'ASX'},
+  // Gold / Commodities
+  {t:'GOLD',n:'ETFS Physical Gold ETF',x:'ASX'},
+  {t:'PMGOLD',n:'Perth Mint Gold ETF',x:'ASX'},
+  {t:'QAU',n:'BetaShares Gold Bullion ETF — Currency Hedged',x:'ASX'},
+  // ASX Big Caps
+  {t:'CBA',n:'Commonwealth Bank of Australia',x:'ASX'},
+  {t:'BHP',n:'BHP Group Limited',x:'ASX'},
+  {t:'CSL',n:'CSL Limited',x:'ASX'},
+  {t:'WBC',n:'Westpac Banking Corporation',x:'ASX'},
+  {t:'NAB',n:'National Australia Bank',x:'ASX'},
+  {t:'ANZ',n:'ANZ Group Holdings',x:'ASX'},
+  {t:'WES',n:'Wesfarmers Limited',x:'ASX'},
+  {t:'MQG',n:'Macquarie Group Limited',x:'ASX'},
+  {t:'TLS',n:'Telstra Group Limited',x:'ASX'},
+  {t:'WOW',n:'Woolworths Group Limited',x:'ASX'},
+  {t:'COL',n:'Coles Group Limited',x:'ASX'},
+  {t:'RIO',n:'Rio Tinto Limited',x:'ASX'},
+  {t:'FMG',n:'Fortescue Ltd',x:'ASX'},
+  {t:'S32',n:'South32 Limited',x:'ASX'},
+  {t:'MIN',n:'Mineral Resources Limited',x:'ASX'},
+  {t:'AWC',n:'Alumina Limited',x:'ASX'},
+  {t:'NCM',n:'Newcrest Mining Limited',x:'ASX'},
+  {t:'NEM',n:'Newmont Corporation (ASX)',x:'ASX'},
+  {t:'WDS',n:'Woodside Energy Group',x:'ASX'},
+  {t:'STO',n:'Santos Limited',x:'ASX'},
+  {t:'REA',n:'REA Group Limited',x:'ASX'},
+  {t:'AFI',n:'Australian Foundation Investment Company',x:'ASX'},
+  {t:'ARG',n:'Argo Investments Limited',x:'ASX'},
+];
+function searchStocks(){
+  const q=document.getElementById('stock-search').value.trim().toLowerCase();
+  const dd=document.getElementById('stock-dropdown');
+  if(q.length<1){dd.style.display='none';return;}
+  const res=STOCKS_DB.filter(s=>s.t.toLowerCase().includes(q)||s.n.toLowerCase().includes(q)).slice(0,8);
+  if(!res.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=res.map(s=>`<div class="search-opt" onclick="pickStock('${s.t}','${s.n.replace(/'/g,"\\'")}','${s.x}')"><strong>${s.t}</strong> · ${s.n} <span style="color:var(--muted);font-size:10px">ASX</span></div>`).join('');
+}
+function pickStock(t,n,x){
+  selectedStock={t,n,x};
+  document.getElementById('stock-search').value=t+' — '+n;
+  document.getElementById('stock-dropdown').style.display='none';
+}
+function addStock(){
+  const qty=parseFloat(document.getElementById('stock-qty').value);
+  const price=parseFloat(document.getElementById('stock-price').value);
+  if(!selectedStock){showToast('⚠️ Search and select a stock first');return;}
+  if(isNaN(qty)||isNaN(price)||qty<=0||price<=0){showToast('⚠️ Enter shares and buy price');return;}
+  const ex=S.stocks.find(s=>s.t===selectedStock.t);
+  if(ex){const tot=ex.qty+qty;ex.avgPrice=((ex.avgPrice*ex.qty)+(price*qty))/tot;ex.qty=tot;}
+  else S.stocks.push({t:selectedStock.t,n:selectedStock.n,x:selectedStock.x,qty,avgPrice:price});
+  document.getElementById('stock-search').value='';
+  document.getElementById('stock-qty').value='';
+  document.getElementById('stock-price').value='';
+  selectedStock=null;save();renderStocks();showToast('📈 Holding added!');
+}
+function rmStock(i){S.stocks.splice(i,1);save();renderStocks();showToast('🗑️ Removed');}
+function renderStocks(){
+  const el=document.getElementById('stock-list');
+  if(!S.stocks.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No holdings yet. Search above to add your first investment.</div>';document.getElementById('total-invested').textContent='$0.00 AUD';document.getElementById('home-invested').textContent='$0';return;}
+  let total=0;
+  el.innerHTML=S.stocks.map((s,i)=>{const val=s.qty*s.avgPrice;total+=val;return`<div class="stock-row"><div class="stock-ticker">${s.t}</div><div class="stock-info"><div class="stock-name">${s.n}</div><div class="stock-detail">${s.qty} units · avg $${s.avgPrice.toFixed(2)} · ASX via CommSec</div></div><div style="text-align:right;flex-shrink:0"><div class="stock-aud">$${val.toFixed(2)}</div><div style="font-size:10px;color:var(--muted)">AUD</div></div><div class="stock-del" onclick="rmStock(${i})">✕</div></div>`;}).join('');
+  document.getElementById('total-invested').textContent='$'+total.toFixed(2)+' AUD';
+  document.getElementById('home-invested').textContent='$'+Math.round(total);
+}
+renderStocks();
+
+// content
+function toggleExpand(btn){
+  const card=btn.closest('.content-card');
+  card.classList.toggle('expanded');
+  btn.textContent=card.classList.contains('expanded')?'▲ Hide script':'▼ Script idea';
+}
+function toggleContentCheck(el){
+  const card=el.closest('.content-card');
+  card.classList.toggle('checked');
+  const cnt=document.querySelectorAll('.content-card.checked').length;
+  document.getElementById('home-content-count').textContent=cnt;
+  showToast(card.classList.contains('checked')?'📲 Marked posted!':'↩️ Unchecked');
+}
+
+// skills
+function updateSkill(id){
+  S.skills[id]=Math.min(100,S.skills[id]+10);
+  document.getElementById(id+'-pct').textContent=S.skills[id]+'%';
+  document.getElementById(id+'-bar').style.width=S.skills[id]+'%';
+  save();showToast('📈 Progress updated!');
+}
+Object.keys(S.skills).forEach(id=>{
+  const pe=document.getElementById(id+'-pct'),be=document.getElementById(id+'-bar');
+  if(pe){pe.textContent=S.skills[id]+'%';be.style.width=S.skills[id]+'%';}
+});
+
+// career goals
+function addCareerGoal(){
+  const inp=document.getElementById('career-goal-input');
+  const txt=inp.value.trim();if(!txt)return;
+  const list=document.getElementById('career-goals-list');
+  const item=document.createElement('div');
+  item.className='goal-item';item.onclick=function(){toggleGoal(this);};
+  item.innerHTML=`<div class="goal-check">✓</div><div><div class="goal-text">${txt}</div><div class="goal-tag">🎯 Custom</div></div>`;
+  list.appendChild(item);inp.value='';showToast('✅ Goal added!');
+}
+
+// ── HABIT TRACKER v2 ──
+if(!S.habits)S.habits=[
+  {id:'h1',name:'Drink 2L water',icon:'💧'},
+  {id:'h2',name:'Morning walk / exercise',icon:'🏃'},
+  {id:'h3',name:'Read 10 mins',icon:'📚'},
+  {id:'h4',name:'No social media before 9am',icon:'📵'},
+  {id:'h5',name:'Invest / check finances',icon:'💰'},
+];
+if(!S.hchecks)S.hchecks={};
+if(!S.hgoals)S.hgoals=[];
+let htYear=now.getFullYear(),htMonth=now.getMonth();
+let htCharts={};
+const HT_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const HT_ICONS=['⬜','🔥','💪','📚','🧘','💧','🏃','🥗','😴','✍️','🎯','💊','🌿','🧠','❤️','⭐','🌅','📵','💰','🧹'];
+
+function hCheckKey(hid,y,m,d){return`${hid}_${y}_${m}_${d}`;}
+function hDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function hUpdateMonthLabel(){document.getElementById('ht-month-label').textContent=HT_MONTHS[htMonth]+' '+htYear;}
+function hPrevMonth(){htMonth--;if(htMonth<0){htMonth=11;htYear--;}hUpdateMonthLabel();htRenderTracker();}
+function hNextMonth(){htMonth++;if(htMonth>11){htMonth=0;htYear++;}hUpdateMonthLabel();htRenderTracker();}
+
+function showHTab(name){
+  document.querySelectorAll('.ht-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ht-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('htab-'+name).classList.add('active');
+  document.getElementById('htsec-'+name).classList.add('active');
+  if(name==='graphs')htRenderGraphs();
+}
+
+function htGetStreak(hid){
+  let streak=0,d=new Date(now);
+  while(streak<365){
+    if(S.hchecks[hCheckKey(hid,d.getFullYear(),d.getMonth(),d.getDate())]){streak++;d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return streak;
+}
+
+function htRenderTracker(){
+  const wrap=document.getElementById('ht-tracker-wrap');
+  const days=hDaysInMonth(htYear,htMonth);
+  const isCurr=(htYear===now.getFullYear()&&htMonth===now.getMonth());
+  const todayD=now.getDate();
+  // col template: name(160px) + days + streak + pct
+  const cols=`160px repeat(${days},1fr) 52px 48px`;
+
+  // header
+  let hdr=`<div class="ht-grid-wrap"><div class="ht-header-row" style="grid-template-columns:${cols};">
+    <div class="ht-th" style="text-align:left;padding-left:8px;">Habit</div>`;
+  for(let d=1;d<=days;d++){
+    const isT=isCurr&&d===todayD;
+    hdr+=`<div class="ht-th${isT?' today-h':''}">${d}</div>`;
+  }
+  hdr+=`<div class="ht-th">🔥</div><div class="ht-th">%</div></div>`;
+
+  // rows
+  let rows='';
+  if(!S.habits.length){
+    rows=`<div style="color:var(--muted);font-size:13px;padding:16px 0;text-align:center;">Add your first habit below ✨</div>`;
+  } else {
+    S.habits.forEach((h,hi)=>{
+      let done=0;
+      let cells='';
+      for(let d=1;d<=days;d++){
+        const isT=isCurr&&d===todayD;
+        const isFuture=isCurr&&d>todayD;
+        const key=hCheckKey(h.id,htYear,htMonth,d);
+        const checked=!!S.hchecks[key];
+        if(checked)done++;
+        let cls='ht-check';
+        if(checked)cls+=' ht-done';
+        if(isT)cls+=' ht-today';
+        if(isFuture)cls+=' ht-future';
+        cells+=`<div class="${cls}" ${(!isFuture)?`onclick="htToggle('${h.id}',${d})"`:''} title="${h.name} — Day ${d}"></div>`;
+      }
+      const total=isCurr?Math.min(todayD,days):days;
+      const pct=total>0?Math.round((done/total)*100):0;
+      const streak=htGetStreak(h.id);
+      rows+=`<div class="ht-habit-row" style="grid-template-columns:${cols};">
+        <div class="ht-name-cell">
+          <span class="ht-icon" onclick="htCycleIcon(${hi})" title="Tap to change">${h.icon||'⬜'}</span>
+          <input class="ht-name-inp" value="${h.name||''}" placeholder="Habit name..."
+            onchange="htRename(${hi},this.value)" maxlength="25">
+          <button class="ht-del-btn" onclick="htDelete(${hi})">✕</button>
+        </div>
+        ${cells}
+        <div class="ht-stat ht-stk" title="${streak} day streak">🔥${streak}</div>
+        <div class="ht-stat ht-pct">${pct}%</div>
+      </div>`;
+    });
+  }
+  wrap.innerHTML=hdr+rows+'</div>';
+  document.getElementById('ht-habit-count').textContent=`${S.habits.length}/15 habits`;
+}
+
+function htToggle(hid,day){
+  const key=hCheckKey(hid,htYear,htMonth,day);
+  S.hchecks[key]=!S.hchecks[key];
+  if(!S.hchecks[key])delete S.hchecks[key];
+  save();htRenderTracker();
+}
+function htCycleIcon(hi){
+  const idx=HT_ICONS.indexOf(S.habits[hi].icon||'⬜');
+  S.habits[hi].icon=HT_ICONS[(idx+1)%HT_ICONS.length];
+  save();htRenderTracker();
+}
+function htRename(i,val){S.habits[i].name=val;save();}
+function htDelete(i){
+  if(confirm('Remove this habit?')){S.habits.splice(i,1);save();htRenderTracker();}
+}
+function htAddHabit(){
+  if(S.habits.length>=15){showToast('⚠️ Max 15 habits');return;}
+  const name=document.getElementById('ht-new-name').value.trim();
+  const icon=document.getElementById('ht-new-icon').value.trim()||'⬜';
+  if(!name){showToast('⚠️ Enter a habit name');return;}
+  S.habits.push({id:'h'+Date.now(),name,icon});
+  document.getElementById('ht-new-name').value='';
+  document.getElementById('ht-new-icon').value='';
+  save();htRenderTracker();showToast('✅ Habit added!');
+}
+
+// GOALS
+const HT_CAT_LABELS={health:'💚 Health',career:'💜 Career',finance:'🧡 Finance',personal:'🩷 Personal',education:'💙 Education',other:'🩶 Other'};
+function htRenderGoals(){
+  const grid=document.getElementById('ht-goals-grid');
+  if(!S.hgoals.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px;">No goals yet — create your first one above! 🎯</div>`;
+    return;
+  }
+  grid.innerHTML=S.hgoals.map((g,i)=>{
+    const dueStr=g.date?new Date(g.date+'T12:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}):'No deadline';
+    const pct=g.progress||0;
+    return `<div class="ht-goal-card">
+      <button class="ht-goal-del" onclick="htDeleteGoal(${i})">✕</button>
+      <div class="ht-cat-pill ht-cat-${g.cat}">${HT_CAT_LABELS[g.cat]||g.cat}</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;line-height:1.3;">${g.desc}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">📅 ${dueStr} · ${g.priority}</div>
+      <div class="ht-prog-track"><div class="ht-prog-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;"><span>${pct}% complete</span><strong style="color:#3ddc84">${pct===100?'🎉 Done!':'In progress'}</strong></div>
+      <input type="range" style="width:100%;accent-color:var(--accent2);cursor:pointer;" min="0" max="100" value="${pct}" oninput="htUpdateGoalProg(${i},this.value)">
+    </div>`;
+  }).join('');
+}
+function htAddGoal(){
+  const desc=document.getElementById('ht-g-desc').value.trim();
+  if(!desc){showToast('⚠️ Enter a goal description');return;}
+  S.hgoals.push({desc,cat:document.getElementById('ht-g-cat').value,date:document.getElementById('ht-g-date').value,priority:document.getElementById('ht-g-priority').value,progress:0});
+  document.getElementById('ht-g-desc').value='';
+  save();htRenderGoals();showToast('🎯 Goal added!');
+}
+function htUpdateGoalProg(i,val){S.hgoals[i].progress=parseInt(val);save();htRenderGoals();}
+function htDeleteGoal(i){if(confirm('Delete this goal?')){S.hgoals.splice(i,1);save();htRenderGoals();}}
+
+// GRAPHS
+const HT_CHART_OPTS={plugins:{legend:{labels:{color:'#7070a0',font:{family:'DM Sans',size:11}}}},scales:{x:{ticks:{color:'#7070a0',font:{family:'DM Sans',size:10}},grid:{color:'#1a1a28'}},y:{ticks:{color:'#7070a0',font:{family:'DM Sans',size:10}},grid:{color:'#1a1a28'}}}};
+
+function htRenderGraphs(){htRenderWeekly();htRenderStreak();htRenderHeatmap();htRenderOverall();}
+
+function htRenderWeekly(){
+  const weeks=[];
+  for(let w=7;w>=0;w--){const d=new Date(now);d.setDate(d.getDate()-w*7);weeks.push({label:`W${8-w}`,d});}
+  const datasets=S.habits.slice(0,6).map((h,i)=>{
+    const cs=['#7c6aff','#3ddc84','#ff6a9b','#ffb347','#60c9ff','#ff9f68'];
+    const data=weeks.map(w=>{
+      let done=0,total=0;
+      for(let di=0;di<7;di++){
+        const date=new Date(w.d);date.setDate(w.d.getDate()-di);
+        if(date<=now){total++;if(S.hchecks[hCheckKey(h.id,date.getFullYear(),date.getMonth(),date.getDate())])done++;}
+      }
+      return total>0?Math.round((done/total)*100):null;
+    });
+    return{label:h.name||`H${i+1}`,data,borderColor:cs[i],backgroundColor:cs[i]+'33',tension:.4,fill:false,pointRadius:4};
+  });
+  if(htCharts.weekly)htCharts.weekly.destroy();
+  htCharts.weekly=new Chart(document.getElementById('ht-weekly-chart').getContext('2d'),{type:'line',data:{labels:weeks.map(w=>w.label),datasets},options:{...HT_CHART_OPTS,responsive:true,scales:{...HT_CHART_OPTS.scales,y:{...HT_CHART_OPTS.scales.y,min:0,max:100,ticks:{...HT_CHART_OPTS.scales.y.ticks,callback:v=>v+'%'}}}}});
+}
+
+function htRenderStreak(){
+  if(!S.habits.length)return;
+  const data=S.habits.map(h=>({name:(h.icon||'')+' '+(h.name||''),streak:htGetStreak(h.id)})).sort((a,b)=>b.streak-a.streak).slice(0,10);
+  if(htCharts.streak)htCharts.streak.destroy();
+  htCharts.streak=new Chart(document.getElementById('ht-streak-chart').getContext('2d'),{type:'bar',data:{labels:data.map(d=>d.name),datasets:[{label:'Streak (days)',data:data.map(d=>d.streak),backgroundColor:data.map((_,i)=>`hsl(${160+i*20},70%,55%)`),borderRadius:6,borderSkipped:false}]},options:{...HT_CHART_OPTS,responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...HT_CHART_OPTS.scales.x,ticks:{...HT_CHART_OPTS.scales.x.ticks,callback:v=>v+'d'}},y:{...HT_CHART_OPTS.scales.y}}}});
+}
+
+function htRenderHeatmap(){
+  const wrap=document.getElementById('ht-heatmap-wrap');
+  const days=hDaysInMonth(htYear,htMonth);
+  const isCurr=htYear===now.getFullYear()&&htMonth===now.getMonth();
+  if(!S.habits.length){wrap.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0">Add habits to see heatmap</div>';return;}
+  // day number headers
+  let html=`<div style="display:flex;gap:3px;margin-bottom:4px;padding-left:124px;">`;
+  for(let d=1;d<=days;d++)html+=`<div style="width:20px;text-align:center;font-size:9px;color:var(--muted);flex-shrink:0;">${d}</div>`;
+  html+='</div>';
+  S.habits.forEach(h=>{
+    html+=`<div style="display:flex;gap:3px;align-items:center;margin-bottom:3px;">
+      <div style="width:120px;font-size:11px;color:var(--muted);text-align:right;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.icon||''} ${h.name}</div>`;
+    for(let d=1;d<=days;d++){
+      const key=hCheckKey(h.id,htYear,htMonth,d);
+      const done=!!S.hchecks[key];
+      const isFuture=isCurr&&d>now.getDate();
+      const isToday=isCurr&&d===now.getDate();
+      let cls='ht-hm-cell';
+      if(done)cls+=' ht-hm-done';
+      if(isFuture)cls+=' ht-hm-future';
+      if(isToday)cls+=' ht-hm-today';
+      html+=`<div class="${cls}" title="${h.name} — Day ${d}: ${done?'✓ Done':'Not done'}"></div>`;
+    }
+    html+='</div>';
+  });
+  wrap.innerHTML=html;
+}
+
+function htRenderOverall(){
+  const months=[];
+  for(let i=5;i>=0;i--){let y=htYear,m=htMonth-i;if(m<0){m+=12;y--;}months.push({y,m,label:HT_MONTHS[m].slice(0,3)+' '+String(y).slice(2)});}
+  const data=months.map(mo=>{
+    const days=hDaysInMonth(mo.y,mo.m);let done=0,total=0;
+    S.habits.forEach(h=>{for(let d=1;d<=days;d++){const isF=mo.y===now.getFullYear()&&mo.m===now.getMonth()&&d>now.getDate();if(!isF){total++;if(S.hchecks[hCheckKey(h.id,mo.y,mo.m,d)])done++;}}});
+    return total>0?Math.round((done/total)*100):0;
+  });
+  if(htCharts.overall)htCharts.overall.destroy();
+  htCharts.overall=new Chart(document.getElementById('ht-overall-chart').getContext('2d'),{type:'bar',data:{labels:months.map(m=>m.label),datasets:[{label:'Overall %',data,backgroundColor:data.map(v=>v>=80?'#3ddc84':v>=50?'#7c6aff':'#ff6a9b'),borderRadius:8,borderSkipped:false}]},options:{...HT_CHART_OPTS,responsive:true,plugins:{legend:{display:false}},scales:{x:{...HT_CHART_OPTS.scales.x},y:{...HT_CHART_OPTS.scales.y,min:0,max:100,ticks:{...HT_CHART_OPTS.scales.y.ticks,callback:v=>v+'%'}}}}});
+}
+
+hUpdateMonthLabel();
+htRenderTracker();
+htRenderGoals();
+
+// toast
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+// close dropdown outside
+document.addEventListener('click',e=>{if(!e.target.closest('#stock-search')&&!e.target.closest('#stock-dropdown'))document.getElementById('stock-dropdown').style.display='none';});
+</script>
+
+</body>
+</html>
